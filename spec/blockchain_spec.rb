@@ -42,7 +42,8 @@ RSpec.describe Blockchain do
   end
 
   describe "#mine_pending_transactions" do
-    let(:chain) { Blockchain.new }
+    let(:mining_reward) { 50 }
+    let(:chain) { Blockchain.new(mining_reward: mining_reward) }
     let(:trans) { Transaction.new('Peter', 'Mary', 100) }
 
     it "adds new mined block" do
@@ -59,6 +60,16 @@ RSpec.describe Blockchain do
       chain.queue_transaction(trans)
       chain.mine_pending_transactions
       expect(chain.pending_transactions).to eq([])
+    end
+
+    it "includes mining reward transaction if reward address is present" do
+      chain.queue_transaction(trans)
+      chain.mine_pending_transactions(mining_reward_address: 'Jane')
+      expect(chain.latest_block.transactions.last).to have_attributes(
+        from_address: nil,
+        to_address: 'Jane',
+        amount: mining_reward
+      )
     end
   end
 

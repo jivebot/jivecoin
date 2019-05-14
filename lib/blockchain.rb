@@ -2,13 +2,15 @@ require 'block'
 
 class Blockchain
   DEFAULT_DIFFICULTY = 2
+  DEFAULT_REWARD = 100
 
   attr_reader :chain, :pending_transactions, :difficulty
 
-  def initialize(difficulty: DEFAULT_DIFFICULTY)
+  def initialize(difficulty: DEFAULT_DIFFICULTY, mining_reward: DEFAULT_REWARD)
     @chain = [build_genesis_block]
     @pending_transactions = []
     @difficulty = difficulty
+    @mining_reward = mining_reward
   end
   
   def queue_transaction(transaction)
@@ -19,7 +21,12 @@ class Blockchain
     @pending_transactions << transaction
   end
 
-  def mine_pending_transactions
+  def mine_pending_transactions(mining_reward_address: nil)
+    if mining_reward_address
+      reward_trans = Transaction.new(nil, mining_reward_address, @mining_reward)
+      queue_transaction(reward_trans)
+    end
+
     block = Block.new(@pending_transactions, latest_block.hashcode)
     block.mine(@difficulty)
 

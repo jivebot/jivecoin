@@ -61,4 +61,22 @@ RSpec.describe Blockchain do
       expect(chain.pending_transactions).to eq([])
     end
   end
+
+  describe "#wallet_balance" do
+    let(:chain) do
+      Blockchain.new.tap do |chain|
+        chain.queue_transaction(Transaction.new('Mary', 'Peter', 100))
+        chain.queue_transaction(Transaction.new('Peter', 'Mary', 50))
+        chain.mine_pending_transactions
+      end
+    end
+
+    it "returns balance considering all transactions" do
+      expect(chain.wallet_balance('Peter')).to eq(50)
+    end
+
+    it "returns 0 if there are no transactions involving address" do
+      expect(chain.wallet_balance('Frank')).to eq(0)
+    end
+  end
 end

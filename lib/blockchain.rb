@@ -27,12 +27,24 @@ class Blockchain
     @pending_transactions = []    
   end
 
+  def wallet_balance(address)
+    transactions.inject(0) do |balance, trans|
+      balance -= trans.amount if trans.from_address == address
+      balance += trans.amount if trans.to_address == address
+      balance
+    end
+  end
+
   def genesis_block
     @chain.first
   end
 
   def latest_block
     @chain.last
+  end
+
+  def transactions
+    chain.flat_map(&:transactions)
   end
 
   private
